@@ -12,12 +12,15 @@ public class CilentThread extends Thread{
 	DataInputStream dis = null;
 	Viewer viewer = null ;
 	
-	public CilentThread(Socket s) {
+	public CilentThread(Socket s,UserView uv) {
 		
 		try {
 			is = s.getInputStream();
 			dis = new DataInputStream(is);
-			viewer = new Viewer();
+			viewer = new Viewer(s);
+			Context.list.add(viewer);
+			uv.Set();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -36,14 +39,14 @@ public class CilentThread extends Thread{
 				int k =0;
 				read = 0;
 				byte[] by = new byte[remain];
-				System.out.println("receive "+ packlength +"bytes");
+			//	System.out.println("receive "+ packlength +"bytes");
 				while(remain>0){
 					
 					read = is.read(by, k, remain);
 					k += read;
 					remain -= read;
 				}
-				System.out.println("by is "+ by.length);
+			//	System.out.println("by is "+ by.length);
 				handle(by,packlength);
 			}
 		}catch(Exception e){
@@ -51,7 +54,7 @@ public class CilentThread extends Thread{
 		}
 	}
 
-	private void handle(byte[] by, int packlength) {
+	private void handle(byte[] by, int packlength) throws IOException {
 		
 		
 		byte[] nobase64_image = Base64.decodeBase64(by);
